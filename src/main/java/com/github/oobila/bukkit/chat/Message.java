@@ -13,6 +13,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -21,6 +22,7 @@ public class Message {
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     public static final DateTimeFormatter DATE_AND_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd @ HH:mm:ss");
     public static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
+    public static final String LIST_PREFIX = "\n  ";
 
     @Setter
     private static ChatColor defaultColor = ChatColor.GOLD;
@@ -28,14 +30,17 @@ public class Message {
     private static ChatColor defaultArgColor = ChatColor.RED;
     private final String text;
     private List<String> args = new ArrayList<>();
+    private ChatColor color = defaultColor;
+    private ChatColor argColor = defaultArgColor;
+    private final List<Message> appendix = new LinkedList<>();
 
     public Message(String text) {
-        this.text = defaultColor + text;
+        this.text = text;
     }
 
     public Message(String text, String... args) {
         this(text);
-        this.args = Arrays.stream(args).map(a -> defaultArgColor + a + defaultColor).toList();
+        this.args = Arrays.stream(args).toList();
     }
 
     public static Message builder(String message){
@@ -43,12 +48,12 @@ public class Message {
     }
 
     public Message arg(String arg) {
-        args.add(defaultArgColor + arg + defaultColor);
+        args.add(arg);
         return this;
     }
 
     public Message arg(ChatColor color, String arg) {
-        args.add(color + arg + defaultColor);
+        args.add(color + arg);
         return this;
     }
 
@@ -85,15 +90,15 @@ public class Message {
     }
 
     public Message arg(Location arg) {
-        return arg(defaultArgColor, arg);
+        return arg(argColor, arg);
     }
 
     public Message arg(ChatColor color, Location arg) {
         args.add(MessageFormat.format("{0}[x={1},y={2},z={3}]",
-                defaultColor,
-                color + String.valueOf(arg.getBlockX()) + defaultColor,
-                color + String.valueOf(arg.getBlockY()) + defaultColor,
-                color + String.valueOf(arg.getBlockZ()) + defaultColor));
+                this.color,
+                color + String.valueOf(arg.getBlockX()) + this.color,
+                color + String.valueOf(arg.getBlockY()) + this.color,
+                color + String.valueOf(arg.getBlockZ()) + this.color));
         return this;
     }
 
@@ -129,7 +134,40 @@ public class Message {
         return arg(color, TIME_FORMATTER.format(arg));
     }
 
+    public Message colors(ChatColor color, ChatColor argColor) {
+        this.color = color;
+        this.argColor = argColor;
+        return this;
+    }
+
+    public Message append(ChatColor color, String text) {
+        appendix.add(new Message(text).colors(color, argColor));
+        return this;
+    }
+
+    public Message append(Message message) {
+        appendix.add(message);
+        return this;
+    }
+
+    public Message append(MessageListAppender messageListAppender) {
+        appendix.addAll(messageListAppender.getAppendix());
+        return this;
+    }
+
+    private String build() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(color);
+        sb.append(MessageFormat.format(text, args.stream().map(
+                string -> argColor + string + color
+        ).toArray()));
+        appendix.forEach(message ->
+                sb.append(LIST_PREFIX).append(message.build())
+        );
+        return sb.toString();
+    }
+
     public void send(Player player) {
-        player.sendMessage(MessageFormat.format(text, args.toArray()));
+        player.sendMessage(build());
     }
 }
