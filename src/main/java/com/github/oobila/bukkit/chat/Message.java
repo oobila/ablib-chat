@@ -170,4 +170,9 @@ public class Message {
     public void send(Player player) {
         player.sendMessage(build());
     }
+
+    @Override
+    public String toString() {
+        return build();
+    }
 }
