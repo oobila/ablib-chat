@@ -175,4 +175,28 @@ public class Message {
     public String toString() {
         return build();
     }
+
+    public static Message message(String string) {
+        return new Message(string);
+    }
+
+    public static Message message(String string, String... args) {
+        Message message =  new Message(string);
+        for (String arg : args) {
+            message.arg(arg);
+        }
+        return message;
+    }
+
+    public static void send(Player player, String messsage) {
+        new Message(messsage).send(player);
+    }
+
+    public static void send(Player player, String messsage, String... args) {
+        Message message =  new Message(messsage);
+        for (String arg : args) {
+            message.arg(arg);
+        }
+        message.send(player);
+    }
 }
