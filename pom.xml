@@ -6,7 +6,7 @@
 
     <groupId>com.github.oobila</groupId>
     <artifactId>ablib-chat</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 
     <repositories>
         <!-- Spigot -->
@@ -20,13 +20,13 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.20.4-R0.1-SNAPSHOT</version>
+            <version>26.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.22</version>
+            <version>1.18.48</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
